@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { GooglePage } from '../pages/GooglePage';
+import { WikipediaPage } from '../pages/WikipediaPage';
 
 test.use({
-  // Desactivar flags de automatización para evitar bloqueo de Google
   launchOptions: {
     args: ['--disable-blink-features=AutomationControlled'],
   },
@@ -9,78 +10,19 @@ test.use({
 });
 
 test('Buscar automatización en Google y validar Wikipedia', async ({ page }) => {
+  const googlePage = new GooglePage(page);
+  const wikipediaPage = new WikipediaPage(page);
 
-  // Abrir Google
-  await page.goto('https://www.google.com', {
-    waitUntil: 'domcontentloaded'
-  });
+  await googlePage.navigate();
+  await googlePage.acceptCookiesIfVisible();
+  await googlePage.search('automatización');
+  await googlePage.clickWikipediaResult();
 
-  // Espera inicial
-  await page.waitForTimeout(2000);
-
-  // Aceptar cookies si aparecen
-  const acceptButton = page.locator('button:has-text("Aceptar todo"), button:has-text("Accept all")');
-
-  if (await acceptButton.isVisible()) {
-    await acceptButton.click();
-    await page.waitForTimeout(1500);
-  }
-
-  // Localizar buscador
-  const searchBox = page.locator('textarea[name="q"]');
-
-  // Click buscador
-  await searchBox.click();
-
-  await page.waitForTimeout(1000);
-
-  // Escribir lentamente en buscador
-  await searchBox.pressSequentially('automatización', {
-    delay: 150
-  });
-
-  // Espera antes de buscar
-  await page.waitForTimeout(1200);
-
-  // Enter
-  await page.keyboard.press('Enter');
-
-  // Esperar resultados
-  await page.waitForSelector('a h3', {
-    timeout: 15000
-  });
-
-  // Espera
-  await page.waitForTimeout(2000);
-
-  // Buscar resultado de Wikipedia
-  const wikiLink = page.locator('a:has(h3)').filter({
-    hasText: 'Wikipedia'
-  }).first();
-
-  await expect(wikiLink).toBeVisible();
-
-  // Click link Wikipedia
-  await wikiLink.click();
-
-  // Esperar Wikipedia
-  await page.waitForLoadState('domcontentloaded');
-
+  await wikipediaPage.waitForLoad();
   await expect(page).toHaveURL(/wikipedia/);
 
-  // Espera natural
-  await page.waitForTimeout(1500);
-
-  // Obtener contenido
-  const content = await page.locator('#mw-content-text').innerText();
-
-  // Validación
+  const content = await wikipediaPage.getContent();
   expect(content).toContain('en 1785, convirtiéndose en el primer proceso industrial completamente automatizado');
 
-  // Screenshot
-  await page.screenshot({
-    path: 'screenshots/wikipedia-automatizacion.png',
-    fullPage: true
-  });
-
+  await wikipediaPage.takeScreenshot('screenshots/wikipedia-automatizacion.png');
 });
