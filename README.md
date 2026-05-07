@@ -1,6 +1,6 @@
 # Automatización Web
 
-Proyecto en typescript con Playwright para automatizar las webs de google y de wikipedia.
+Proyecto en TypeScript con Playwright para automatizar las webs de google y de wikipedia.
 
 ---
 
