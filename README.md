@@ -9,7 +9,10 @@ Proyecto en TypeScript con Playwright para automatizar las webs de google y de w
 ```
 auto-google-wikipedia/
 ├── node_modules/
-├── screenshots/          
+├── pages/                        # Page objects, elementos necesarios para interactuar con la página 
+│   ├── GooglePage.ts
+│   └── WikipediaPage.ts
+├── screenshots/            
 ├── test-results/                 # Se genera después de ejectuar el test
 ├── tests/
 │   └── google-wikipedia.spec.ts  # Tests
